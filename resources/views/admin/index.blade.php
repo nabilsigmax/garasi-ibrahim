@@ -9,7 +9,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak] { display: none !important; }</style>
 </head>
-<body class="bg-gray-100 font-sans" x-data="{ activeTab: 'cars', openCreate: false, openEdit: false, editCar: {} }">
+<body class="bg-gray-100 font-sans" x-data="{ activeTab: 'dashboard', openCreate: false, openEdit: false, editCar: {} }">
 
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
@@ -17,6 +17,9 @@
             <div>
                 <h1 class="text-xl font-extrabold tracking-wider mb-8">PANEL<span class="text-blue-500">ADMIN</span></h1>
                 <nav class="space-y-3">
+                    <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </button>
                     <button @click="activeTab = 'cars'" :class="activeTab === 'cars' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition">
                         <i class="fas fa-car"></i> Kelola Mobil
                     </button>
@@ -25,6 +28,15 @@
                             <i class="fas fa-comments"></i> Chat Pelanggan
                         </div>
                         <span class="bg-blue-500/30 text-blue-300 text-[10px] px-2 py-0.5 rounded-full">Live</span>
+                    </button>
+                    <button @click="activeTab = 'transactions'" :class="activeTab === 'transactions' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition">
+                        <span class="flex items-center gap-3"><i class="fas fa-receipt"></i> Transaksi</span>
+                        @if($transactions->where('status', 'pending')->count())
+                            <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full">{{ $transactions->where('status', 'pending')->count() }}</span>
+                        @endif
+                    </button>
+                    <button @click="activeTab = 'bodyTypes'" :class="activeTab === 'bodyTypes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-tags"></i> Tipe Body
                     </button>
                     <a href="{{ route('landing') }}" class="flex items-center gap-3 hover:bg-slate-800 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition">
                         <i class="fas fa-globe"></i> Lihat Website
@@ -42,6 +54,10 @@
                 </div>
             @endif
 
+            @if(session('error'))
+                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-xs font-medium">{{ session('error') }}</div>
+            @endif
+
             @if($errors->any())
                 <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-xs">
                     <ul class="list-disc list-inside">
@@ -52,8 +68,45 @@
                 </div>
             @endif
 
+            <!-- DASHBOARD RINGKASAN -->
+            <div x-show="activeTab === 'dashboard'">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
+                    <p class="text-xs text-gray-500">Pantau inventaris, kategori, dan perkembangan transaksi showroom.</p>
+                </div>
+
+                <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <div class="rounded-xl border border-blue-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600"><i class="fas fa-car"></i></span><span class="text-3xl font-extrabold text-slate-900">{{ $dashboardStats['cars'] }}</span></div><p class="mt-4 text-xs font-semibold text-slate-600">Total Mobil</p><p class="mt-1 text-[11px] text-slate-400">Unit dalam inventaris</p></div>
+                    <div class="rounded-xl border border-violet-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600"><i class="fas fa-tags"></i></span><span class="text-3xl font-extrabold text-slate-900">{{ $dashboardStats['categories'] }}</span></div><p class="mt-4 text-xs font-semibold text-slate-600">Kategori Mobil</p><p class="mt-1 text-[11px] text-slate-400">Tipe body yang tersedia</p></div>
+                    <div class="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><i class="fas fa-receipt"></i></span><span class="text-3xl font-extrabold text-slate-900">{{ $dashboardStats['transactions'] }}</span></div><p class="mt-4 text-xs font-semibold text-slate-600">Total Transaksi</p><p class="mt-1 text-[11px] text-slate-400">Seluruh booking pelanggan</p></div>
+                    <div class="rounded-xl border border-amber-100 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600"><i class="fas fa-clock"></i></span><span class="text-3xl font-extrabold text-slate-900">{{ $dashboardStats['pendingTransactions'] }}</span></div><p class="mt-4 text-xs font-semibold text-slate-600">Menunggu Verifikasi</p><p class="mt-1 text-[11px] text-slate-400">Transaksi perlu ditindaklanjuti</p></div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 p-5"><h3 class="font-bold text-slate-800">Jumlah Mobil per Kategori</h3><p class="mt-1 text-xs text-slate-500">Distribusi inventaris berdasarkan tipe body.</p></div>
+                        <div class="divide-y divide-gray-100">
+                            @forelse($bodyTypes as $bodyType)
+                                <div class="flex items-center justify-between px-5 py-3.5"><span class="text-sm font-medium text-slate-700">{{ $bodyType->name }}</span><span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{{ $bodyType->cars_count }} unit</span></div>
+                            @empty
+                                <p class="p-5 text-center text-xs text-slate-400">Belum ada kategori mobil.</p>
+                            @endforelse
+                        </div>
+                    </section>
+
+                    <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 p-5"><h3 class="font-bold text-slate-800">Status Transaksi</h3><p class="mt-1 text-xs text-slate-500">Ringkasan progres seluruh booking pelanggan.</p></div>
+                        <div class="grid grid-cols-2 gap-px bg-gray-100">
+                            @foreach(['pending' => ['Menunggu Verifikasi', 'amber'], 'approved' => ['Unit Terkunci', 'emerald'], 'completed' => ['Selesai', 'blue'], 'rejected' => ['Dibatalkan', 'rose']] as $status => [$label, $color])
+                                <div class="bg-white p-5"><p class="text-2xl font-extrabold text-slate-900">{{ $transactionSummary->get($status, 0) }}</p><p class="mt-1 text-xs font-medium text-{{ $color }}-600">{{ $label }}</p></div>
+                            @endforeach
+                        </div>
+                    </section>
+                </div>
+            </div>
+
             <!-- TAB 1: KELOLA MOBIL -->
-            <div x-show="activeTab === 'cars'">
+            <div x-show="activeTab === 'cars'" x-cloak>
                 <div class="flex justify-between items-center mb-6">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">Daftar Mobil</h2>
@@ -119,7 +172,64 @@
                 </div>
             </div>
 
-            <!-- TAB 2: INBOX CHAT PELANGGAN -->
+            <!-- TAB 2: TRANSAKSI -->
+            <div x-show="activeTab === 'transactions'" x-cloak>
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Transaksi Booking</h2>
+                        <p class="text-xs text-gray-500">Verifikasi pembayaran, kunci unit, atau batalkan transaksi pelanggan.</p>
+                    </div>
+                    <a href="{{ route('admin.transactions.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Halaman lengkap <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <table class="w-full text-left text-xs text-gray-600">
+                        <thead class="border-b border-gray-200 bg-gray-50 uppercase text-gray-700">
+                            <tr><th class="p-4">Invoice & Pembeli</th><th class="p-4">Unit</th><th class="p-4">DP</th><th class="p-4">Status</th><th class="p-4 text-center">Aksi</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($transactions as $tx)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-4"><p class="font-mono font-bold text-blue-600">{{ $tx->invoice_number }}</p><p class="mt-0.5 font-semibold text-gray-900">{{ $tx->user->name }}</p></td>
+                                    <td class="p-4"><p class="font-semibold text-gray-900">{{ $tx->car->name }}</p><p class="text-[10px] text-gray-400">{{ $tx->payment_method === 'credit' ? 'DP Kredit' : ($tx->payment_method === 'cash' ? 'Cash' : 'Booking Fee') }}</p></td>
+                                    <td class="p-4 font-semibold text-emerald-600">Rp {{ number_format($tx->down_payment, 0, ',', '.') }}</td>
+                                    <td class="p-4">
+                                        <span class="rounded-full px-2 py-1 text-[10px] font-bold {{ $tx->status === 'pending' ? 'bg-amber-100 text-amber-700' : ($tx->status === 'approved' ? 'bg-emerald-100 text-emerald-700' : ($tx->status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700')) }}">{{ ['pending' => 'Menunggu Verifikasi', 'approved' => 'Unit Terkunci', 'completed' => 'Selesai', 'rejected' => 'Dibatalkan'][$tx->status] }}</span>
+                                    </td>
+                                    <td class="p-4"><form action="{{ route('admin.transactions.update', $tx) }}" method="POST" class="flex items-center justify-center gap-2">@csrf @method('PATCH')
+                                        <select name="status" class="rounded-lg border border-gray-300 bg-white p-1.5 text-[11px]" {{ $tx->status === 'completed' ? 'disabled' : '' }}>
+                                            <option value="pending" @selected($tx->status === 'pending')>Pending</option><option value="approved" @selected($tx->status === 'approved')>Setujui</option><option value="completed" @selected($tx->status === 'completed')>Selesai</option><option value="rejected" @selected($tx->status === 'rejected')>Batalkan</option>
+                                        </select>
+                                        @if($tx->status !== 'completed')<button type="submit" class="rounded-lg bg-blue-600 p-1.5 text-white hover:bg-blue-700" title="Simpan status"><i class="fas fa-save"></i></button>@endif
+                                    </form></td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5" class="p-8 text-center text-gray-400">Belum ada transaksi booking.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: MASTER TIPE BODY -->
+            <div x-show="activeTab === 'bodyTypes'" x-cloak>
+                <div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">Kategori Tipe Body</h2><p class="text-xs text-gray-500">Kelola kategori seperti SUV, Off-road, Sedan, dan tipe body lainnya.</p></div>
+                <div class="grid gap-6 lg:grid-cols-3">
+                    <form action="{{ route('body-types.store') }}" method="POST" class="h-fit rounded-xl border border-gray-200 bg-white p-5 shadow-sm">@csrf
+                        <h3 class="mb-4 font-bold text-gray-800">Tambah Kategori</h3><label class="mb-1 block text-xs font-medium text-gray-600">Nama tipe body</label>
+                        <input name="name" value="{{ old('name') }}" required maxlength="50" placeholder="Contoh: Crossover" class="w-full rounded-lg border border-gray-300 p-2.5 text-xs focus:border-blue-500 focus:outline-none">
+                        <button class="mt-3 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-700"><i class="fas fa-plus mr-1"></i> Tambah Kategori</button>
+                    </form>
+                    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:col-span-2"><table class="w-full text-left text-xs text-gray-600"><thead class="border-b border-gray-200 bg-gray-50 uppercase text-gray-700"><tr><th class="p-4">Nama Kategori</th><th class="p-4">Jumlah Unit</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody class="divide-y divide-gray-100">
+                        @forelse($bodyTypes as $bodyType)
+                            <tr><td class="p-4"><form id="body-type-{{ $bodyType->id }}" action="{{ route('body-types.update', $bodyType) }}" method="POST">@csrf @method('PUT')<input name="name" value="{{ $bodyType->name }}" required maxlength="50" class="w-full rounded-lg border border-gray-300 p-2 text-xs focus:border-blue-500 focus:outline-none"></form></td><td class="p-4"><span class="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-600">{{ $bodyType->cars_count }} unit</span></td><td class="p-4"><div class="flex justify-center gap-2"><button form="body-type-{{ $bodyType->id }}" class="rounded-lg bg-blue-50 p-2 text-blue-600 hover:bg-blue-100" title="Simpan perubahan"><i class="fas fa-save"></i></button><form action="{{ route('body-types.destroy', $bodyType) }}" method="POST" onsubmit="return confirm('Hapus kategori ini? Unit yang memakainya akan menjadi tanpa kategori.');">@csrf @method('DELETE')<button class="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100" title="Hapus kategori"><i class="fas fa-trash"></i></button></form></div></td></tr>
+                        @empty
+                            <tr><td colspan="3" class="p-8 text-center text-gray-400">Belum ada kategori tipe body.</td></tr>
+                        @endforelse
+                    </tbody></table></div>
+                </div>
+            </div>
+
+            <!-- TAB 4: INBOX CHAT PELANGGAN -->
             <div x-show="activeTab === 'chat'" x-cloak>
                 <div class="mb-6 flex justify-between items-center">
                     <div>
@@ -268,6 +378,11 @@
                 </div>
 
                 <div>
+                    <label class="block text-gray-600 font-medium mb-1">Tipe Body</label>
+                    <select name="body_type_id" class="w-full border rounded-lg p-2 text-xs"><option value="">Pilih tipe body</option>@foreach($bodyTypes as $bodyType)<option value="{{ $bodyType->id }}">{{ $bodyType->name }}</option>@endforeach</select>
+                </div>
+
+                <div>
                     <label class="block text-gray-600 font-medium mb-1">Harga (Rp) *</label>
                     <input type="number" name="price" placeholder="Contoh: 250000000" required class="w-full border rounded-lg p-2 text-xs">
                 </div>
@@ -358,12 +473,9 @@
 
                 <div>
                     <label class="block text-gray-600 font-medium mb-1">Tipe Bodi *</label>
-                    <select name="body_type" x-model="editCar.body_type" required class="w-full border rounded-lg p-2 text-xs">
-                        <option value="SUV">SUV</option>
-                        <option value="Sedan">Sedan</option>
-                        <option value="MPV">MPV</option>
-                        <option value="Hatchback">Hatchback</option>
-                        <option value="Coupe">Coupe</option>
+                    <select name="body_type_id" x-model="editCar.body_type_id" class="w-full border rounded-lg p-2 text-xs">
+                        <option value="">Pilih tipe body</option>
+                        @foreach($bodyTypes as $bodyType)<option value="{{ $bodyType->id }}">{{ $bodyType->name }}</option>@endforeach
                     </select>
                 </div>
 

@@ -9,18 +9,7 @@
 </head>
 <body class="bg-gray-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
 
-    <header class="bg-white/80 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
-            <a href="{{ route('landing') }}" class="text-xl font-black tracking-wider text-slate-900">
-                GARASI<span class="text-blue-600">IBRAHIM</span>
-            </a>
-            <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 px-3.5 py-2 rounded-lg transition-all">
-                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
-            </a>
-        </div>
-    </header>
-
-    <main class="flex-1 flex items-center justify-center p-6 my-6">
+    <main class="flex flex-1 items-center justify-center p-6">
         <div class="w-full max-w-md bg-white rounded-2xl border border-gray-200/90 shadow-sm p-8">
             
             <div class="text-center mb-6">

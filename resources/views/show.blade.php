@@ -9,20 +9,10 @@
 </head>
 <body class="bg-gray-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- Top Navigation Bar -->
-    <header class="bg-white/80 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
-            <a href="{{ route('landing') }}" class="text-xl font-black tracking-wider text-slate-900">
-                GARASI<span class="text-blue-600">IBRAHIM</span>
-            </a>
-            <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 px-3.5 py-2 rounded-lg transition-all">
-                <i class="fas fa-arrow-left"></i> Kembali ke Katalog
-            </a>
-        </div>
-    </header>
+    <x-navbar />
 
     <!-- Main Container -->
-    <main class="max-w-6xl mx-auto w-full px-6 py-8 flex-1">
+    <main class="max-w-6xl mx-auto w-full px-6 pb-8 pt-28 flex-1">
         
         <!-- Breadcrumb / Badge Status -->
         <div class="flex items-center gap-2 mb-4">
@@ -122,6 +112,11 @@
 
                     <!-- Call to Action Button -->
                     <div class="mt-6 pt-5 border-t border-gray-100">
+                        @auth
+                            <a href="{{ route('transactions.create', $car) }}" class="mb-3 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2.5 text-xs font-bold text-white hover:bg-blue-700">Lanjut ke Transaksi</a>
+                        @else
+                            <a href="{{ route('login') }}" class="mb-3 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2.5 text-xs font-bold text-white hover:bg-blue-700">Masuk untuk Booking</a>
+                        @endauth
                         <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20mobil%20{{ urlencode($car->name) }}" 
                            target="_blank" 
                            class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2.5 transition duration-150 shadow-sm hover:shadow-emerald-200">

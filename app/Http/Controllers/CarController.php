@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BodyType;
 use App\Models\Car;
 use App\Models\ChatRoom;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class CarController extends Controller
@@ -11,22 +13,18 @@ class CarController extends Controller
     // Halaman Utama / Landing Page
     public function index(Request $request)
     {
-        $query = Car::query();
+        $query = Car::with('bodyType');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('brand', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('brand', 'like', '%'.$request->search.'%')
+                    ->orWhere('description', 'like', '%'.$request->search.'%');
             });
         }
 
         if ($request->filled('body_type')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->body_type . '%')
-                  ->orWhere('brand', 'like', '%' . $request->body_type . '%')
-                  ->orWhere('description', 'like', '%' . $request->body_type . '%');
-            });
+            $query->where('body_type_id', $request->integer('body_type'));
         }
 
         if ($request->filled('min_price')) {
@@ -47,7 +45,9 @@ class CarController extends Controller
 
         $cars = $query->latest()->get();
 
-        return view('landing', compact('cars'));
+        $bodyTypes = BodyType::orderBy('name')->get();
+
+        return view('landing', compact('cars', 'bodyTypes'));
     }
 
     // Detail Mobil
@@ -60,38 +60,50 @@ class CarController extends Controller
 
     // Halaman Dashboard Admin
     public function adminIndex()
-{
-    $cars = Car::all();
-    
-    // Ambil semua room chat beserta user dan pesan terakhirnya
-    $chatRooms = ChatRoom::with(['user', 'messages' => function($query) {
-        $query->latest();
-    }])->latest()->get();
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
 
-    return view('admin.index', compact('cars', 'chatRooms'));
-}
+        $cars = Car::with('bodyType')->get();
+        $bodyTypes = BodyType::withCount('cars')->orderBy('name')->get();
+        $transactions = Transaction::with(['user', 'car'])->latest()->get();
+        $transactionSummary = $transactions->countBy('status');
+        $dashboardStats = [
+            'cars' => $cars->count(),
+            'categories' => $bodyTypes->count(),
+            'transactions' => $transactions->count(),
+            'pendingTransactions' => $transactionSummary->get('pending', 0),
+        ];
+
+        // Ambil semua room chat beserta user dan pesan terakhirnya
+        $chatRooms = ChatRoom::with(['user', 'messages' => function ($query) {
+            $query->latest();
+        }])->latest()->get();
+
+        return view('admin.index', compact('cars', 'chatRooms', 'transactions', 'bodyTypes', 'dashboardStats', 'transactionSummary'));
+    }
 
     // Tambah Mobil Baru
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'               => 'required|string',
-            'brand'              => 'required|string',
-            'year'               => 'nullable|numeric',
-            'price'              => 'required|numeric',
-            'color'              => 'nullable|string',
-            'transmission'       => 'required|string',
-            'fuel'               => 'nullable|string',
-            'engine_capacity'    => 'nullable|string',
+            'name' => 'required|string',
+            'brand' => 'required|string',
+            'body_type_id' => 'nullable|exists:body_types,id',
+            'year' => 'nullable|numeric',
+            'price' => 'required|numeric',
+            'color' => 'nullable|string',
+            'transmission' => 'required|string',
+            'fuel' => 'nullable|string',
+            'engine_capacity' => 'nullable|string',
             'passenger_capacity' => 'nullable|string',
-            'mileage'            => 'nullable|numeric',
-            'condition'          => 'required|string',
-            'description'        => 'nullable|string',
-            'image'              => 'nullable|string',
-            'gallery'            => 'nullable|string',
+            'mileage' => 'nullable|numeric',
+            'condition' => 'required|string',
+            'description' => 'nullable|string',
+            'image' => 'nullable|string',
+            'gallery' => 'nullable|string',
         ]);
 
-        if (!empty($data['gallery'])) {
+        if (! empty($data['gallery'])) {
             $data['gallery'] = array_map('trim', explode(',', str_replace(["\r\n", "\n", "\r"], ',', $data['gallery'])));
         } else {
             $data['gallery'] = [];
@@ -106,23 +118,24 @@ class CarController extends Controller
     public function update(Request $request, Car $car)
     {
         $data = $request->validate([
-            'name'               => 'required|string',
-            'brand'              => 'required|string',
-            'year'               => 'nullable|numeric',
-            'price'              => 'required|numeric',
-            'color'              => 'nullable|string',
-            'transmission'       => 'required|string',
-            'fuel'               => 'nullable|string',
-            'engine_capacity'    => 'nullable|string',
+            'name' => 'required|string',
+            'brand' => 'required|string',
+            'body_type_id' => 'nullable|exists:body_types,id',
+            'year' => 'nullable|numeric',
+            'price' => 'required|numeric',
+            'color' => 'nullable|string',
+            'transmission' => 'required|string',
+            'fuel' => 'nullable|string',
+            'engine_capacity' => 'nullable|string',
             'passenger_capacity' => 'nullable|string',
-            'mileage'            => 'nullable|numeric',
-            'condition'          => 'required|string',
-            'description'        => 'nullable|string',
-            'image'              => 'nullable|string',
-            'gallery'            => 'nullable|string',
+            'mileage' => 'nullable|numeric',
+            'condition' => 'required|string',
+            'description' => 'nullable|string',
+            'image' => 'nullable|string',
+            'gallery' => 'nullable|string',
         ]);
 
-        if (!empty($data['gallery'])) {
+        if (! empty($data['gallery'])) {
             $data['gallery'] = array_map('trim', explode(',', str_replace(["\r\n", "\n", "\r"], ',', $data['gallery'])));
         } else {
             $data['gallery'] = [];

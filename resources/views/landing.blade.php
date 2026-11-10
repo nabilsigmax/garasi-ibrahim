@@ -10,68 +10,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased">
-
-    <!-- NAVBAR -->
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="{{ route('landing') }}" class="font-extrabold text-2xl tracking-wider text-slate-900">GARASI<span class="text-blue-600">IBRAHIM</span></a>
-            
-            <div class="hidden md:flex space-x-8 font-medium text-sm text-gray-600">
-                <a href="#home" class="text-blue-600 font-semibold">Home</a>
-                <a href="#katalog" class="hover:text-blue-600 transition">Katalog</a>
-                <a href="#kontak" class="hover:text-blue-600 transition">Kontak</a>
-            </div>
-
-            <!-- AREA LOGIN / REGISTER / USER STATS -->
-            <div class="flex items-center gap-3">
-                <a href="https://wa.me/628123456789" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-xs flex items-center gap-2 transition mr-1">
-                    <i class="fab font-bold fa-whatsapp text-sm"></i> Chat Sales
-                </a>
-
-                @auth
-                    <!-- Tombol Wishlist Navigasi -->
-                    <a href="{{ route('wishlist.index') }}" class="text-xs font-semibold text-slate-700 hover:text-red-500 flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/70 px-3 py-2 rounded-lg transition">
-                        <i class="fas fa-heart text-red-500"></i>
-                        <span>Wishlist</span>
-                    </a>
-
-                    <!-- Jika Sudah Login -->
-                    <div class="flex items-center gap-3 pl-2 border-l border-gray-200">
-                        <span class="text-xs font-bold text-slate-800">Hi, {{ Auth::user()->name }}</span>
-                        
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-bold">
-                                Logout
-                            </button>
-                        </form> 
-                    </div>
-                @else
-                    <!-- Jika Belum Login -->
-                    <a href="{{ route('login') }}" class="text-xs font-semibold text-slate-700 hover:text-blue-600 px-3 py-2 transition">
-                        Masuk
-                    </a>
-                    <a href="{{ route('register') }}" class="text-xs font-bold bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white px-4 py-2 rounded-lg transition shadow-sm">
-                        Daftar
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </nav>
+    <x-navbar :landing="true" />
 
     <!-- HERO SECTION -->
-    <section id="home" class="bg-[#344878] text-white py-24 text-center px-6 relative overflow-hidden">
-        <div class="max-w-4xl mx-auto">
-            <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
-                Temukan Mobil Impian Anda
-            </h1>
-            <p class="text-slate-400 text-sm md:text-base mb-8 max-w-2xl mx-auto">
-                Dapatkan unit mobil berkualitas premium, bersertifikat aman, bergaransi resmi, dan nikmati pelayanan pembelian cash/kredit terbaik khusus untuk Anda.
-            </p>
-            <div class="flex justify-center gap-4">
-                <a href="#katalog" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg text-sm transition">Lihat Katalog</a>
-                <a href="#kontak" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-medium px-6 py-3 rounded-lg text-sm transition">Hubungi Kami</a>
+    <section id="home" class="relative overflow-hidden bg-gradient-to-br from-[#1e315d] via-[#344878] to-[#17264a] px-6 pt-32 pb-24 text-center text-white md:pt-36 md:pb-28">
+        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px); background-size: 46px 46px;"></div>
+        <div class="absolute -left-16 top-8 h-56 w-56 rounded-full bg-blue-400/30 blur-3xl"></div>
+        <div class="absolute -right-16 bottom-0 h-64 w-64 rounded-full bg-cyan-300/20 blur-3xl"></div>
+        <div class="relative mx-auto max-w-4xl">
+            <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200/25 bg-white/10 px-3.5 py-1.5 text-[10px] font-bold tracking-[.16em] text-blue-100 backdrop-blur">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span> SHOWROOM MOBIL TERPERCAYA
             </div>
+            <h1 class="text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">Temukan Mobil Impian<br><span class="text-blue-200">Tanpa Rasa Ragu.</span></h1>
+            <p class="mx-auto mb-8 mt-5 max-w-2xl text-sm leading-relaxed text-slate-200 md:text-base">Unit pilihan yang telah diperiksa, informasi transparan, dan proses pembelian cash maupun kredit yang nyaman dari awal hingga serah terima.</p>
+            <div class="flex flex-wrap justify-center gap-3"><a href="#katalog" class="rounded-xl bg-blue-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-950/30 transition hover:-translate-y-0.5 hover:bg-blue-400">Lihat Katalog <i class="fas fa-arrow-right ml-1.5 text-xs"></i></a><a href="#kontak" class="rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">Hubungi Kami</a></div>
+            <div class="mx-auto mt-10 flex max-w-xl items-center justify-center divide-x divide-white/15 text-xs text-slate-200"><span class="px-4"><i class="fas fa-shield-alt mr-1.5 text-blue-200"></i> Unit Terinspeksi</span><span class="px-4"><i class="fas fa-file-invoice mr-1.5 text-blue-200"></i> Harga Transparan</span><span class="px-4"><i class="fas fa-headset mr-1.5 text-blue-200"></i> Siap Membantu</span></div>
         </div>
     </section>
 
@@ -82,8 +35,7 @@
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
                     <i class="fas fa-car"></i>
                 </div>
-                <h3 class="font-bold text-lg mb-2">500+ Unit Terjual</h3>
-                <p class="text-xs text-gray-500 leading-relaxed">Kepercayaan pelanggan adalah prioritas utama kami dalam melayani unit terbaik.</p>
+                <h3 class="font-bold text-lg mb-2">500+ Unit Terjual</h3><p class="text-xs text-gray-500 leading-relaxed">Kepercayaan pelanggan adalah prioritas utama kami dalam melayani unit terbaik.</p>
             </div>
             <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
@@ -135,9 +87,9 @@
                                 onchange="this.form.submit()" 
                                 class="w-full py-2 px-3 border rounded-lg text-xs text-gray-600 focus:outline-none">
                             <option value="">Semua Kategori</option>
-                            <option value="Sedan" {{ request('body_type') == 'Sedan' ? 'selected' : '' }}>Sedan</option>
-                            <option value="SUV" {{ request('body_type') == 'SUV' ? 'selected' : '' }}>SUV</option>
-                            <option value="Off-road" {{ request('body_type') == 'Off-road' ? 'selected' : '' }}>Off-road</option>
+                            @foreach($bodyTypes as $bodyType)
+                                <option value="{{ $bodyType->id }}" @selected((string) request('body_type') === (string) $bodyType->id)>{{ $bodyType->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -393,7 +345,7 @@
         </div>
 
         <div class="border-t border-slate-800 pt-6 text-center text-slate-500 text-[11px]">
-            © 2026 GARASI IBRAHIM. All Rights Reserved.
+            Ãƒâ€šÃ‚Â© 2026 GARASI IBRAHIM. All Rights Reserved.
         </div>
     </footer>
 

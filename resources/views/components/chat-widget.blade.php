@@ -229,7 +229,7 @@
         function sendQuickReply(text) {
             const input = document.getElementById('garasi-chat-input');
             input.value = text;
-            document.getElementById('garasi-chat-form').dispatchEvent(new Event('submit'));
+            input.focus();
         }
 
         function refreshGarasiMessages() {

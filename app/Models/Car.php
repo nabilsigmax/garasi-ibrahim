@@ -12,6 +12,7 @@ class Car extends Model
     protected $fillable = [
         'name',
         'brand',
+        'body_type_id',
         'year',
         'price',
         'color',
@@ -35,8 +36,18 @@ class Car extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    public function bodyType()
+    {
+        return $this->belongsTo(BodyType::class);
+    }
+
     public function chatRooms()
     {
         return $this->hasMany(ChatRoom::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

@@ -9,10 +9,12 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <div class="container mx-auto px-4 py-8">
+    <x-navbar />
+
+    <div class="container mx-auto px-4 pb-8 pt-28">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Wishlist Saya</h1>
-            <a href="{{ route('landing') }}" class="text-blue-600 hover:underline">← Kembali ke Beranda</a>
+            <x-back-link :href="route('landing')" label="Kembali ke Beranda" />
         </div>
 
         @if($wishlists->isEmpty())
